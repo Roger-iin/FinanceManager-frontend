@@ -247,7 +247,7 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
     const [accounts, setAccounts] = useState([])
     const [categories, setCategories] = useState([])
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm({
+    const { register, handleSubmit, watch, reset, formState: { errors } } = useForm({
         defaultValues: {
             description: transaction?.description ?? '',
             amount: transaction?.amount ?? '',
@@ -268,6 +268,17 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
         ]).then(([accRes, catRes]) => {
             setAccounts(accRes.data)
             setCategories(catRes.data)
+            if (transaction) {
+                reset({
+                    description: transaction.description ?? '',
+                    amount: transaction.amount ?? '',
+                    type: transaction.type ?? 'EXPENSE',
+                    date: transaction.date ?? new Date().toISOString().split('T')[0],
+                    accountId: transaction.accountId ?? '',
+                    categoryId: transaction.categoryId ?? '',
+                    notes: transaction.notes ?? '',
+                })
+            }
         }).catch(err => console.error(err))
     }, [])
 
