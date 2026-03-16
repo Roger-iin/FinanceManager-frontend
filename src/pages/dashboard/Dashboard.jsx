@@ -6,6 +6,7 @@ import {
 import { dashboardService } from "../../services/dashboardService"
 import { formatCurrency, firstDayOfMonth, lastDayOfMonth } from "../../utils/formatters"
 import Card from "../../components/ui/Card"
+import Button from "../../components/ui/Button"
 
 const CHART_COLORS = [
     "#6366f1", "#f59e0b", "#10b981", "#ef4444",
@@ -18,22 +19,30 @@ export default function Dashboard() {
     const [error, setError] = useState("")
     const [startDate, setStartDate] = useState(firstDayOfMonth())
     const [endDate, setEndDate] = useState(lastDayOfMonth())
+    const [appliedDates, setAppliedDates] = useState({
+        startDate: firstDayOfMonth(),
+        endDate: lastDayOfMonth(),
+    })
 
     useEffect(() => {
         fetchSummary()
-    }, [startDate, endDate])
+    }, [appliedDates])
 
     const fetchSummary = async () => {
         try {
             setLoading(true)
             setError("")
-            const res = await dashboardService.getSummary({ startDate, endDate })
+            const res = await dashboardService.getSummary(appliedDates)
             setSummary(res.data)
         } catch (err) {
             setError("Erro ao carregar dados do dashboard.")
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleApply = () => {
+        setAppliedDates({ startDate, endDate })
     }
 
     const chartData = summary?.expenseByCategory?.map((cat) => ({
@@ -62,13 +71,19 @@ export default function Dashboard() {
                         onChange={(e) => setStartDate(e.target.value)}
                         className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
-                    <span className="text-gray-400 text-sm">ate</span>
+                    <span className="text-gray-400 text-sm">até</span>
                     <input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                         className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
+                    <Button
+                        onClick={handleApply}
+                        className="px-4 py-2 text-sm bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors"
+                    >
+                        Aplicar
+                    </Button>
                 </div>
             </div>
 
@@ -124,9 +139,7 @@ export default function Dashboard() {
                                         />
                                     ))}
                                 </Pie>
-                                <Tooltip
-                                    formatter={(value) => formatCurrency(value)}
-                                />
+                                <Tooltip formatter={(value) => formatCurrency(value)} />
                                 <Legend />
                             </PieChart>
                         </ResponsiveContainer>
