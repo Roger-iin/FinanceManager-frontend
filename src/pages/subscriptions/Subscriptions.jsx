@@ -245,7 +245,7 @@ function SubscriptionForm({ subscription, onSuccess, onCancel }) {
     const [accounts, setAccounts] = useState([])
     const [categories, setCategories] = useState([])
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
             name: subscription?.name ?? '',
             amount: subscription?.amount ?? '',
@@ -264,6 +264,17 @@ function SubscriptionForm({ subscription, onSuccess, onCancel }) {
         ]).then(([accRes, catRes]) => {
             setAccounts(accRes.data)
             setCategories(catRes.data)
+            if (subscription) {
+                reset({
+                    name: subscription?.name ?? '',
+                    amount: subscription?.amount ?? '',
+                    billingDay: subscription?.billingDay ?? '',
+                    accountId: subscription?.accountId ?? '',
+                    categoryId: subscription?.categoryId ?? '',
+                    startDate: subscription?.startDate ?? new Date().toISOString().split('T')[0],
+                    notes: subscription?.notes ?? '',
+                })
+            }
         })
     }, [])
 
